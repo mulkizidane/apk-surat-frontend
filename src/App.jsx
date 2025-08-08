@@ -6,7 +6,15 @@ import DashboardLayout from './pages/DashboardLayout';
 import DashboardPage from './pages/DashboardPage';
 import SuratKeluarPage from './pages/SuratKeluarPage';
 import SuratKeluarForm from './pages/SuratKeluarForm';
-import SuratKeluarDetailPage from './pages/SuratKeluarDetailPage';
+import SuratMasukPage from './pages/SuratMasukPage';
+import SuratMasukForm from './pages/SuratMasukForm';
+import VerifikasiDetailPage from './pages/VerifikasiDetailPage';
+import SuratMasukDetailPage from './pages/SuratMasukDetailPage';
+import AdminSuratKeluarPage from './pages/AdminSuratKeluarPage';
+import SuratKeluarEditPage from './pages/SuratKeluarEditPage';
+
+
+
 
 // Komponen untuk melindungi rute
 const ProtectedRoute = () => {
@@ -33,7 +41,13 @@ function App() {
             <Route index element={<DashboardPage />} />
             <Route path="surat-keluar" element={<SuratKeluarPage />} />
             <Route path="surat-keluar/baru" element={<SuratKeluarForm />} />
-            <Route path="surat-keluar/:id" element={<SuratKeluarDetailPage />} />
+            <Route path="verifikasi/:id" element={<VerifikasiDetailPage />} />
+            {/* 👇 2. TAMBAHKAN RUTE BARU DI SINI 👇 */}
+            <Route path="surat-masuk" element={<SuratMasukPage />} />
+            <Route path="surat-masuk/upload" element={<SuratMasukForm />} />
+            <Route path="surat-masuk/:id" element={<SuratMasukDetailPage />} />
+            <Route path="admin/surat-keluar/:id/verify" element={<AdminSuratKeluarPage />} />
+            <Route path="surat-keluar/:id/edit" element={<SuratKeluarEditPage />} />
           </Route>
         </Route>
         <Route

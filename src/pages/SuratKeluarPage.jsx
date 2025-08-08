@@ -2,6 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSuratKeluar } from '../api/api'; 
 
+// Helper function untuk styling status agar lebih berwarna
+const getStatusBadge = (status) => {
+  const baseClasses = "px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize";
+  switch (status) {
+    case 'menunggu_penomoran':
+    case 'proses_approval_atasan':
+    case 'proses_approval_pimpinan':
+      return `${baseClasses} bg-yellow-100 text-yellow-800`;
+    case 'selesai_terkirim':
+      return `${baseClasses} bg-green-100 text-green-800`;
+    case 'revisi':
+      return `${baseClasses} bg-orange-100 text-orange-800`;
+    case 'ditolak':
+      return `${baseClasses} bg-red-100 text-red-800`;
+    default:
+      return `${baseClasses} bg-gray-100 text-gray-800`;
+  }
+};
+
+
 export default function SuratKeluarPage() {
   const [suratList, setSuratList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,19 +33,16 @@ export default function SuratKeluarPage() {
         setError('');
         setIsLoading(true);
         
-        // Panggil fungsi API yang menggunakan apiClient (axios)
         const response = await getSuratKeluar(); 
         
-        // Pastikan data yang diterima adalah array sebelum di-set ke state
         if (response && Array.isArray(response.data)) {
           setSuratList(response.data);
         } else {
           console.warn("API tidak mengembalikan format array yang diharapkan:", response);
-          setSuratList([]); // Set sebagai array kosong jika format tidak sesuai
+          setSuratList([]);
         }
 
       } catch (err) {
-        // Menampilkan pesan error yang lebih informatif
         setError(err.message || 'Gagal memuat data surat keluar.');
       } finally {
         setIsLoading(false);
@@ -33,14 +50,12 @@ export default function SuratKeluarPage() {
     };
 
     loadSuratKeluar();
-  }, []); // Dependency array kosong agar hanya berjalan sekali saat komponen dimuat
+  }, []);
 
-  // Tampilan saat data sedang dimuat
   if (isLoading) {
     return <div className="text-center p-8">Memuat data...</div>;
   }
 
-  // Tampilan jika terjadi error
   if (error) {
     return <div className="text-center p-8 text-red-600">Error: {error}</div>;
   }
@@ -49,12 +64,11 @@ export default function SuratKeluarPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Daftar Surat Keluar</h1>
-        {/* Tombol ini sekarang menggunakan Link dan akan berfungsi */}
         <Link 
           to="/dashboard/surat-keluar/baru" 
           className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm"
         >
-          Buat Surat Baru
+          Buat Draf Surat
         </Link>
       </div>
 
@@ -76,16 +90,16 @@ export default function SuratKeluarPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {suratList.map((surat) => (
                   <tr key={surat.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{surat.nomor_surat || '-'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{surat.nomor_surat || 'Belum Dinomori'}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{surat.isi}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{surat.tanggal}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
-                        {surat.status.replace('_', ' ')}
+                      <span className={getStatusBadge(surat.status)}>
+                        {surat.status.replace(/_/g, ' ')}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {/* Link detail juga sudah menggunakan Link */}
+                      {/* PERBAIKAN UTAMA: Link sekarang mengarah ke halaman detail umum */}
                       <Link to={`/dashboard/surat-keluar/${surat.id}`} className="text-indigo-600 hover:text-indigo-900">
                         Detail
                       </Link>

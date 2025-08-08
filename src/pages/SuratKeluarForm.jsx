@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApprovers, createSuratKeluar, getKategoriSurat, getJenisSurat, getUnitTree } from '../api/api';
+import { createSuratKeluar, getKategoriSurat, getJenisSurat, getUnitTree } from '../api/api';
 
 export default function SuratKeluarForm() {
   const navigate = useNavigate();
@@ -11,42 +11,34 @@ export default function SuratKeluarForm() {
     jenis_surat_id: '',
     tanggal: new Date().toISOString().split('T')[0],
     isi: '',
-    approvers: [],
+    // Hapus 'approvers' dari state
   });
 
-  // State untuk menampung data master dari API
+  // State untuk menampung data master dari API (tidak berubah)
   const [kategoriOptions, setKategoriOptions] = useState([]);
   const [jenisOptions, setJenisOptions] = useState([]);
-  const [approverOptions, setApproverOptions] = useState({});
   const [unitTree, setUnitTree] = useState([]);
 
-  // State untuk mengelola pilihan dropdown tujuan
+  // State untuk mengelola pilihan dropdown tujuan (tidak berubah)
   const [selectedUnitId, setSelectedUnitId] = useState('');
   const [selectedSubUnitId, setSelectedSubUnitId] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
-
-  // State untuk mengisi pilihan di dropdown turunan
   const [subUnitOptions, setSubUnitOptions] = useState([]);
   const [userOptions, setUserOptions] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // 1. useEffect untuk mengambil semua data master saat komponen dimuat
+  // useEffects untuk memuat data master (tidak ada perubahan di sini)
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const [kategoriRes, approverRes, unitTreeRes] = await Promise.all([
+        const [kategoriRes, unitTreeRes] = await Promise.all([
           getKategoriSurat(),
-          getApprovers(),
           getUnitTree() 
         ]);
-        
-        // PERBAIKAN: Ambil properti .data dari setiap response
         setKategoriOptions(kategoriRes.data || []);
-        setApproverOptions(approverRes.data || {});
         setUnitTree(unitTreeRes.data || []);
-
       // eslint-disable-next-line no-unused-vars
       } catch (err) {
         setError("Gagal memuat data awal. Pastikan Anda terhubung ke server.");
@@ -55,13 +47,12 @@ export default function SuratKeluarForm() {
     loadInitialData();
   }, []);
 
-  // 2. useEffect untuk mengambil Jenis Surat setiap kali Kategori Surat berubah
   useEffect(() => {
     if (formData.kategori_surat_id) {
       const loadJenisSurat = async () => {
         try {
           const response = await getJenisSurat(formData.kategori_surat_id);
-          setJenisOptions(response.data || []); // Ambil .data
+          setJenisOptions(response.data || []);
           setFormData(prev => ({ ...prev, jenis_surat_id: '' }));
         // eslint-disable-next-line no-unused-vars
         } catch (err) {
@@ -74,7 +65,6 @@ export default function SuratKeluarForm() {
     }
   }, [formData.kategori_surat_id]);
 
-  // 3. useEffect untuk mengatur dropdown Sub-Unit & User saat Unit Utama berubah
   useEffect(() => {
     setSelectedSubUnitId('');
     setSelectedUserId('');
@@ -93,10 +83,8 @@ export default function SuratKeluarForm() {
     }
   }, [selectedUnitId, unitTree]);
 
-  // 4. useEffect untuk mengatur dropdown User saat Sub-Unit berubah
   useEffect(() => {
     setSelectedUserId('');
-    
     if (selectedSubUnitId) {
       const selectedSubUnit = subUnitOptions.find(sub => sub.id === selectedSubUnitId);
       setUserOptions(selectedSubUnit ? (selectedSubUnit.users || []) : []);
@@ -109,30 +97,22 @@ export default function SuratKeluarForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleApproverChange = (e) => {
-      const { value, checked } = e.target;
-      const [tipe, userId, nama] = value.split('|');
-      let newApprovers = [...formData.approvers];
-      if(checked) {
-          newApprovers.push({ user_id: userId, tipe, nama });
-      } else {
-          newApprovers = newApprovers.filter(app => app.user_id !== userId);
-      }
-      setFormData(prev => ({...prev, approvers: newApprovers}))
-  }
+  // Handler untuk approver sudah tidak diperlukan lagi, jadi dihapus.
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    if (!formData.isi || !formData.kategori_surat_id || !formData.jenis_surat_id || formData.approvers.length === 0 || !selectedUnitId) {
-      setError("Semua field wajib diisi, termasuk tujuan dan alur persetujuan.");
+    // Validasi disederhanakan
+    if (!formData.isi || !formData.kategori_surat_id || !formData.jenis_surat_id || !selectedUnitId) {
+      setError("Semua field wajib diisi, termasuk tujuan.");
       setIsLoading(false);
       return;
     }
 
     try {
+      // Hapus 'approvers' dari payload
       const payload = {
         ...formData,
         tujuan: [{
@@ -143,10 +123,10 @@ export default function SuratKeluarForm() {
       };
       
       await createSuratKeluar(payload);
-      alert('Surat keluar berhasil dibuat!');
+      alert('Draf surat berhasil dibuat & dikirim ke Admin TU!');
       navigate('/dashboard/surat-keluar');
     } catch (err) {
-      setError(err.message || "Gagal membuat surat keluar.");
+      setError(err.message || "Gagal membuat draf surat.");
     } finally {
       setIsLoading(false);
     }
@@ -154,8 +134,9 @@ export default function SuratKeluarForm() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Buat Surat Keluar Baru</h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Buat Draf Surat Keluar</h1>
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md space-y-6">
+        {/* Bagian Kategori, Jenis Surat, Isi, dan Tujuan tidak berubah */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label htmlFor="kategori_surat_id" className="block text-sm font-medium text-gray-700">Kategori Surat</label>
@@ -193,7 +174,6 @@ export default function SuratKeluarForm() {
                 ))}
               </select>
             </div>
-            
             {subUnitOptions.length > 0 && (
               <div>
                 <label htmlFor="tujuan_subunit_id" className="block text-sm font-medium text-gray-700">Sub Unit</label>
@@ -205,7 +185,6 @@ export default function SuratKeluarForm() {
                 </select>
               </div>
             )}
-
             {userOptions.length > 0 && (
               <div>
                 <label htmlFor="tujuan_user_id" className="block text-sm font-medium text-gray-700">User (Opsional)</label>
@@ -220,23 +199,7 @@ export default function SuratKeluarForm() {
           </div>
         </div>
 
-        <div>
-            <h3 className="text-lg font-medium text-gray-900">Alur Persetujuan</h3>
-            <div className="mt-4 space-y-2">
-                {Object.keys(approverOptions).map(key => {
-                    const approver = approverOptions[key];
-                    if (!approver) return null;
-                    return (
-                        <div key={approver.id} className="flex items-center">
-                            <input id={`approver-${approver.id}`} name="approvers" type="checkbox" value={`paraf|${approver.id}|${approver.nama}`} onChange={handleApproverChange} className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" />
-                            <label htmlFor={`approver-${approver.id}`} className="ml-3 block text-sm font-medium text-gray-700">
-                                {approver.nama} <span className="text-xs text-gray-500">({key.replace(/_/g, ' ')})</span>
-                            </label>
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
+        {/* HAPUS BAGIAN ALUR PERSETUJUAN DARI SINI */}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         
@@ -245,7 +208,7 @@ export default function SuratKeluarForm() {
                 Batal
             </button>
             <button type="submit" disabled={isLoading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300">
-                {isLoading ? 'Menyimpan...' : 'Simpan & Ajukan Surat'}
+                {isLoading ? 'Mengajukan...' : 'Ajukan Draf Surat'}
             </button>
         </div>
       </form>

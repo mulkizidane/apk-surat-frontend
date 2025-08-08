@@ -57,6 +57,16 @@ export default function DashboardLayout() {
                 <span>Surat Keluar</span>
               </NavLink>
             </li>
+            <li className="mb-2">
+              <NavLink 
+                to="/dashboard/surat-masuk"
+                className={({ isActive }) => 
+                  `flex items-center px-4 py-2 rounded transition-colors duration-200 hover:bg-gray-700 ${isActive ? 'bg-indigo-600' : ''}`
+                }
+              >
+                <span>Surat Masuk</span>
+              </NavLink>
+            </li> 
             {/* Tambahkan link menu lainnya di sini, contoh: */}
             {/* <li className="mb-2">
               <NavLink 

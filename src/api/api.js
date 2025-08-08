@@ -36,12 +36,19 @@ export const setAuthToken = (token) => {
 export const getSuratKeluar = () => apiClient.get('/surat-keluar');
 export const getSuratKeluarDetail = (id) => apiClient.get(`/surat-keluar/${id}`);
 export const createSuratKeluar = (suratData) => apiClient.post('/surat-keluar', suratData);
+export const getVerifikasiDetail = (parafId) => apiClient.get(`/verifikasi/${parafId}`);
+
+// --- API Surat Masuk ---
+export const getSuratMasuk = () => apiClient.get('/surat-masuk');
+export const getSuratMasukDetail = (id) => apiClient.get(`/surat-masuk/${id}`);
+
 
 // --- API UNTUK DATA PENDUKUNG ---
 export const getApprovers = () => apiClient.get('/approvers');
 export const getKategoriSurat = () => apiClient.get('/kategori-surat');
 export const getJenisSurat = (kategoriId) => apiClient.get(`/jenis-surat?kategori_id=${kategoriId}`);
 export const getUnitTree = () => apiClient.get('/units/tree'); // Endpoint baru untuk dropdown
+export const getUsers = () => apiClient.get('/users');
 
 // --- API UNTUK DASHBOARD ---
 export const getDashboardData = () => apiClient.get('/dashboard');

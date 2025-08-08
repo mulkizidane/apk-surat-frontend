@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // 1. Import Link
+import { Link } from 'react-router-dom';
 import { getDashboardData } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
-// Komponen Card diupdate untuk menerima properti `isVerification`
-const TaskCard = ({ title, tasks, isVerification = false }) => {
+const TaskCard = ({ title, tasks, linkPrefix, linkSuffix = '', linkKey = 'id', titleKey = 'isi' }) => {
   if (!tasks || tasks.length === 0) {
     return null;
   }
@@ -16,23 +15,16 @@ const TaskCard = ({ title, tasks, isVerification = false }) => {
       </h3>
       <div className="space-y-3">
         {tasks.map((task) => (
-          <div key={task.id} className="bg-gray-50 p-3 rounded-md border border-gray-200 flex justify-between items-center">
+          <div key={task[linkKey]} className="bg-gray-50 p-3 rounded-md border border-gray-200 flex justify-between items-center">
             <div>
-              {isVerification ? (
-                // Tampilan khusus untuk kartu verifikasi
-                <p className="text-gray-700">Surat ID #{task.surat_id} menunggu persetujuan Anda.</p>
-              ) : (
-                // Tampilan umum untuk kartu lain
-                <p className="text-gray-700">{task.perihal || task.isi || task.keterangan_disposisi}</p>
-              )}
+              <p className="text-gray-700">{task[titleKey] || `Tugas ID: ${task[linkKey]}`}</p>
               <p className="text-xs text-gray-400 mt-1">
-                {isVerification ? `Tipe: ${task.tipe}` : `Tanggal: ${new Date(task.tanggal_surat || task.tanggal_disposisi).toLocaleDateString('id-ID')}`}
+                {task.tipe ? `Tipe: ${task.tipe}` : `Tanggal: ${new Date(task.tanggal || task.created_at || task.tanggal_diterima).toLocaleDateString('id-ID')}`}
               </p>
             </div>
-            {isVerification && (
-              // 2. Tambahkan Link ke halaman verifikasi
+            {linkPrefix && (
               <Link
-                to={`/dashboard/verifikasi/${task.id}`} // `task.id` di sini adalah ID dari paraf_surat
+                to={`${linkPrefix}/${task[linkKey]}${linkSuffix}`}
                 className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600"
               >
                 Proses
@@ -50,13 +42,13 @@ export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { user } = useAuth(); // Ambil data user untuk personalisasi
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const response = await getDashboardData();
-        setDashboardData(response.data); // Ingat, data dari axios ada di .data
+        setDashboardData(response.data);
       // eslint-disable-next-line no-unused-vars
       } catch (err) {
         setError("Gagal memuat data. Coba refresh halaman.");
@@ -81,12 +73,41 @@ export default function DashboardPage() {
       <p className="text-gray-600 mb-6">Selamat datang kembali, {user?.name || 'Pengguna'}.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* 3. Beri properti isVerification={true} pada card yang tepat */}
-        <TaskCard title="Surat Perlu Persetujuan" tasks={dashboardData?.perlu_persetujuan} isVerification={true} />
-        <TaskCard title="Surat Masuk Baru" tasks={dashboardData?.surat_masuk_baru} />
-        <TaskCard title="Disposisi untuk Anda" tasks={dashboardData?.disposisi_untuk_anda} />
-        <TaskCard title="Surat Siap Kirim / Arsip" tasks={dashboardData?.siap_kirim} />
-        <TaskCard title="Surat Sudah Didisposisi" tasks={dashboardData?.sudah_disposisi} />
+        
+        <TaskCard 
+            title="Surat Perlu Persetujuan" 
+            tasks={dashboardData?.perlu_persetujuan} 
+            linkPrefix="/dashboard/verifikasi" 
+            titleKey="surat_id"
+        />
+        
+        <TaskCard 
+            title="Surat Perlu Penomoran" 
+            tasks={dashboardData?.perlu_penomoran} 
+            linkPrefix="/dashboard/admin/surat-keluar"
+            linkSuffix="/verify" // <-- PERBAIKAN KRUSIAL ADA DI SINI
+            linkKey="id"
+            titleKey="isi" 
+        />
+        <TaskCard 
+            title="Surat Siap Kirim" 
+            tasks={dashboardData?.siap_kirim} 
+            linkPrefix="/dashboard/surat-keluar"
+        />
+
+        <TaskCard 
+            title="Surat Masuk Baru" 
+            tasks={dashboardData?.surat_masuk_baru} 
+            linkPrefix="/dashboard/surat-masuk" 
+            titleKey="perihal"
+        />
+        <TaskCard 
+            title="Disposisi untuk Anda" 
+            tasks={dashboardData?.disposisi_untuk_anda} 
+            linkPrefix="/dashboard/surat-masuk" 
+            titleKey="keterangan_disposisi" 
+            linkKey="surat_masuk_id" 
+        />
       </div>
     </div>
   );
