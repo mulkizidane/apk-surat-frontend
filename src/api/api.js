@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// Definisikan URL base dari backend kita di satu tempat
 const API_URL = 'http://localhost:8080/api';
 
-// 1. Buat instance Axios yang akan kita gunakan di mana-mana
 const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
@@ -17,41 +15,41 @@ const apiClient = axios.create({
  */
 export const setAuthToken = (token) => {
   if (token) {
-    // Terapkan token ke header untuk semua request selanjutnya
     apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
-    // Hapus token dari header jika logout
     delete apiClient.defaults.headers.common['Authorization'];
   }
 };
 
 /*
  * ====================================================================
- * KUMPULAN FUNGSI API
- * Semua fungsi di bawah ini sekarang otomatis membawa token jika user sudah login.
+ * KUMPULAN FUNGSI API (SESUAI BACKEND BARU KITA)
  * ====================================================================
  */
 
-// --- API UNTUK SURAT KELUAR ---
-export const getSuratKeluar = () => apiClient.get('/surat-keluar');
-export const getSuratKeluarDetail = (id) => apiClient.get(`/surat-keluar/${id}`);
-export const createSuratKeluar = (suratData) => apiClient.post('/surat-keluar', suratData);
-export const getVerifikasiDetail = (parafId) => apiClient.get(`/verifikasi/${parafId}`);
+// --- API UNTUK OTENTIKASI ---
+export const login = (nim, password) => {
+  return apiClient.post('/login', { nim, password });
+};
 
-// --- API Surat Masuk ---
-export const getSuratMasuk = () => apiClient.get('/surat-masuk');
-export const getSuratMasukDetail = (id) => apiClient.get(`/surat-masuk/${id}`);
-
+// --- API UNTUK SURAT ---
+export const getSuratKeluar = () => apiClient.get('/surat/keluar');
+export const getSuratMasuk = () => apiClient.get('/surat/masuk');
+export const getSuratDetail = (id) => apiClient.get(`/surat/${id}`);
+export const createSurat = (suratData) => apiClient.post('/surat', suratData);
+export const getInbox = () => apiClient.get('/surat/inbox');
 
 // --- API UNTUK DATA PENDUKUNG ---
-export const getApprovers = () => apiClient.get('/approvers');
+export const getUnitTree = () => apiClient.get('/units/tree');
 export const getKategoriSurat = () => apiClient.get('/kategori-surat');
 export const getJenisSurat = (kategoriId) => apiClient.get(`/jenis-surat?kategori_id=${kategoriId}`);
-export const getUnitTree = () => apiClient.get('/units/tree'); // Endpoint baru untuk dropdown
-export const getUsers = () => apiClient.get('/users');
-
-// --- API UNTUK DASHBOARD ---
+export const getInternalUsers = () => apiClient.get('/users/internal');
+export const getApprovers = () => apiClient.get('/approvers');
+export const submitVerifikasi = (suratId, verifikasiData) => apiClient.put(`/verifikasi/${suratId}`, verifikasiData);
+export const submitDisposisi = (suratId, disposisiData) => apiClient.post(`/disposisi/${suratId}`, disposisiData);
 export const getDashboardData = () => apiClient.get('/dashboard');
-
+export const submitDistribusi = (suratId, distribusiData) => apiClient.post(`/distribusi/${suratId}`, distribusiData);
+export const getVerifikasiKeluar = () => apiClient.get('/surat/verifikasi-keluar');
+export const updateSurat = (id, suratData) => apiClient.put(`/surat/${id}`, suratData);
 
 export default apiClient;

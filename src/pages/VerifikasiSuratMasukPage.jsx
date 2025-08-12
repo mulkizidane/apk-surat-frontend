@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getSuratKeluar } from '../api/api';
+import { getSuratMasuk } from '../api/api'; // Kita pakai ulang API getSuratMasuk
 
-export default function SuratKeluarPage() {
+export default function VerifikasiMasukPage() {
   const [suratList, setSuratList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -12,10 +12,11 @@ export default function SuratKeluarPage() {
       try {
         setError('');
         setIsLoading(true);
-        const response = await getSuratKeluar();
+        // API ini akan mengambil surat yang statusnya 'TERKIRIM' ke unit Admin
+        const response = await getSuratMasuk(); 
         setSuratList(response.data || []);
       } catch (err) {
-        setError(err.response?.data?.messages?.error || 'Gagal memuat data surat keluar.');
+        setError(err.response?.data?.messages?.error || 'Gagal memuat data surat masuk.');
       } finally {
         setIsLoading(false);
       }
@@ -25,7 +26,7 @@ export default function SuratKeluarPage() {
   }, []);
 
   if (isLoading) {
-    return <div className="text-center p-8">Memuat data...</div>;
+    return <div className="text-center p-8">Memuat data verifikasi...</div>;
   }
 
   if (error) {
@@ -35,25 +36,20 @@ export default function SuratKeluarPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Daftar Surat Keluar</h1>
-        <Link 
-          to="/dashboard/surat-keluar/baru" 
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm"
-        >
-          + Buat Surat Baru
-        </Link>
+        <h1 className="text-3xl font-bold text-gray-800">Verifikasi Surat Masuk</h1>
+        {/* Nanti di sini bisa ada tombol untuk upload surat eksternal */}
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-md">
         {suratList.length === 0 ? (
-          <p className="text-gray-500">Belum ada surat keluar yang dibuat.</p>
+          <p className="text-gray-500">Tidak ada surat baru yang perlu diverifikasi.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Perihal</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Surat</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                 </tr>
@@ -64,20 +60,15 @@ export default function SuratKeluarPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">{surat.perihal}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{surat.tanggal_surat}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 capitalize">
-                        {surat.status.replace('_', ' ')}
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 capitalize">
+                        Perlu Verifikasi
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {surat.status === 'DIKEMBALIKAN_PENGIRIM' ? (
-                        <Link to={`/dashboard/surat-keluar/edit/${surat.id}`} className="text-yellow-600 hover:text-yellow-900 mr-4">
-                          Edit
-                        </Link>
-                      ) : (
-                        <Link to={`/dashboard/surat-keluar/${surat.id}`} className="text-indigo-600 hover:text-indigo-900">
-                          Detail
-                        </Link>
-                      )}
+                      {/* Link ini akan mengarah ke halaman detail & disposisi */}
+                      <Link to={`/dashboard/surat-masuk/${surat.id}`} className="text-indigo-600 hover:text-indigo-900">
+                        Proses & Disposisi
+                      </Link>
                     </td>
                   </tr>
                 ))}

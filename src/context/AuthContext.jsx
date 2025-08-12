@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { setAuthToken } from '../api/api'; // Import fungsi setAuthToken
+import { setAuthToken } from '../api/api';
 
 const AuthContext = createContext(null);
 
@@ -12,13 +12,9 @@ export const AuthProvider = ({ children }) => {
     const tokenInStorage = localStorage.getItem('jwt_token');
     if (tokenInStorage) {
       try {
-        // PENTING: Saat aplikasi refresh, langsung set token ke header Axios
         setAuthToken(tokenInStorage);
-        
-        // Decode token untuk mendapatkan data user tanpa harus panggil API lagi
         const decoded = JSON.parse(atob(tokenInStorage.split('.')[1]));
         
-        // Cek apakah token sudah kedaluwarsa
         if (decoded.exp * 1000 < Date.now()) {
             throw new Error("Token expired");
         }
@@ -33,25 +29,26 @@ export const AuthProvider = ({ children }) => {
 
       // eslint-disable-next-line no-unused-vars
       } catch (error) {
-        // Jika token tidak valid atau kedaluwarsa, hapus semuanya
         localStorage.removeItem('jwt_token');
         setAuthToken(null);
         setUser(null);
         setToken(null);
       }
     }
-    setIsLoading(false); // Selesai pengecekan awal
+    setIsLoading(false);
   }, []);
 
-  const login = (data) => {
+  const handleLogin = (data) => {
     const { token, user } = data;
-    // Fungsi login dari auth.js sudah menangani localStorage dan setAuthToken
+    localStorage.setItem('jwt_token', token);
+    setAuthToken(token);
     setToken(token);
     setUser(user);
   };
 
-  const logout = () => {
-    // Fungsi logout dari auth.js sudah menangani localStorage dan setAuthToken
+  const handleLogout = () => {
+    localStorage.removeItem('jwt_token');
+    setAuthToken(null);
     setToken(null);
     setUser(null);
   };
@@ -61,11 +58,10 @@ export const AuthProvider = ({ children }) => {
     token,
     isAuthenticated: !!token,
     isLoading,
-    login,
-    logout,
+    login: handleLogin,
+    logout: handleLogout,
   };
 
-  // Jangan render apapun sampai pengecekan token selesai
   if (isLoading) {
     return <div>Loading application...</div>;
   }
