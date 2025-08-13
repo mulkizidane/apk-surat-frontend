@@ -36,12 +36,6 @@ export default function VerifikasiMasukPage() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Verifikasi & Distribusi Surat Masuk</h1>
-        <Link
-          to="/dashboard/surat-eksternal/baru"
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm"
-        >
-          + Upload Surat Eksternal
-        </Link>
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-md">

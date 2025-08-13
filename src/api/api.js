@@ -55,13 +55,4 @@ export const getSuratUntukDisposisi = () => apiClient.get('/surat/untuk-disposis
 export const submitTindakLanjut = (suratId, data) => apiClient.post(`/tindak-lanjut/${suratId}`, data);
 export const getArsipSurat = () => apiClient.get('/arsip');
 
-// di src/api/api.js
-export const uploadSuratEksternal = (formData) => {
-  return apiClient.post('/surat/upload-eksternal', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-};
-
 export default apiClient;

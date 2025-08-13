@@ -14,7 +14,6 @@ import VerifikasiMasukPage from './pages/VerifikasiSuratMasukPage';
 import DistribusiDetailPage from './pages/DistribusiDetailPage';
 import VerifikasiKeluarPage from './pages/VerifikasiKeluarPage';
 import DisposisiPimpinanPage from './pages/DisposisiPimpinanPage';
-import SuratEksternalForm from './pages/SuratEksternalForm';
 import ArsipSuratPage from './pages/ArsipSuratPage';
 
 
@@ -22,7 +21,7 @@ const ProtectedRoute = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   if (!isAuthenticated) {
@@ -35,7 +34,7 @@ const ProtectedRoute = () => {
 function App() {
   return (
       <Routes>
-      <Route path="/login" element={<LoginPage />} /> 
+      <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardPage />} />
@@ -50,7 +49,6 @@ function App() {
           <Route path="distribusi/:suratId" element={<DistribusiDetailPage />} />
           <Route path="verifikasi-keluar" element={<VerifikasiKeluarPage />} />
           <Route path="disposisi" element={<DisposisiPimpinanPage />} />
-          <Route path="surat-eksternal/baru" element={<SuratEksternalForm />} />
           <Route path="arsip" element={<ArsipSuratPage />} />
         </Route>
       </Route>
