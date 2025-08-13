@@ -51,5 +51,17 @@ export const getDashboardData = () => apiClient.get('/dashboard');
 export const submitDistribusi = (suratId, distribusiData) => apiClient.post(`/distribusi/${suratId}`, distribusiData);
 export const getVerifikasiKeluar = () => apiClient.get('/surat/verifikasi-keluar');
 export const updateSurat = (id, suratData) => apiClient.put(`/surat/${id}`, suratData);
+export const getSuratUntukDisposisi = () => apiClient.get('/surat/untuk-disposisi');
+export const submitTindakLanjut = (suratId, data) => apiClient.post(`/tindak-lanjut/${suratId}`, data);
+export const getArsipSurat = () => apiClient.get('/arsip');
+
+// di src/api/api.js
+export const uploadSuratEksternal = (formData) => {
+  return apiClient.post('/surat/upload-eksternal', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
 
 export default apiClient;

@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { getDashboardData } from '../api/api';
 import { useAuth } from '../context/AuthContext';
 
-// Komponen Card untuk menampilkan daftar tugas
+// Komponen Card untuk Tugas Verifikasi (untuk Pimpinan/Atasan)
 const TaskCard = ({ title, tasks, linkPrefix }) => {
-  // Pastikan tasks adalah array, jika tidak, anggap saja kosong
   const taskList = Array.isArray(tasks) ? tasks : [];
 
   return (
@@ -40,9 +39,27 @@ const TaskCard = ({ title, tasks, linkPrefix }) => {
   );
 };
 
+// Komponen Card BARU untuk Tugas Distribusi (untuk Admin TU)
+const InfoCard = ({ title, count, description, linkTo, linkText }) => {
+    return (
+        <div className="bg-white rounded-lg shadow p-6 flex flex-col justify-between">
+            <div>
+                <h3 className="font-bold text-lg text-gray-800">{title}</h3>
+                <p className="text-5xl font-bold text-indigo-600 mt-4">{count}</p>
+                <p className="text-sm text-gray-500 mt-2">{description}</p>
+            </div>
+            <Link
+                to={linkTo}
+                className="mt-6 w-full text-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm"
+            >
+                {linkText}
+            </Link>
+        </div>
+    );
+};
+
 
 export default function DashboardPage() {
-  // State awal diubah menjadi objek kosong {} agar lebih aman
   const [dashboardData, setDashboardData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -52,7 +69,6 @@ export default function DashboardPage() {
     const loadData = async () => {
       try {
         const response = await getDashboardData();
-        // Jika response.data kosong, state akan menjadi objek kosong, bukan undefined
         setDashboardData(response.data || {});
       // eslint-disable-next-line no-unused-vars
       } catch (err) {
@@ -78,13 +94,24 @@ export default function DashboardPage() {
       <p className="text-gray-600 mb-6">Selamat datang kembali, {user?.name || 'Pengguna'}.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        {/* Tampilkan InfoCard jika user adalah Admin TU dan ada data tugas_distribusi */}
+        {user?.role === 'admin_tu' && typeof dashboardData.tugas_distribusi !== 'undefined' && (
+            <InfoCard
+                title="Tugas Verifikasi & Distribusi"
+                count={dashboardData.tugas_distribusi}
+                description="Jumlah surat masuk dan keluar yang memerlukan verifikasi dan distribusi dari Anda."
+                linkTo="/dashboard/verifikasi-masuk" // Arahkan ke salah satu halaman verifikasi
+                linkText="Lihat Tugas"
+            />
+        )}
+
         <TaskCard 
-            title="Tugas Verifikasi Surat" 
-            // Sekarang aman untuk langsung akses seperti ini
+            title="Tugas Persetujuan Surat" 
             tasks={dashboardData.tugas_verifikasi}
             linkPrefix="/dashboard/verifikasi"
         />
-        {/* Nanti kita bisa tambahkan card lain di sini */}
+
       </div>
     </div>
   );

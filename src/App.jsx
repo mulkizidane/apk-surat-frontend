@@ -13,6 +13,9 @@ import SuratMasukDetailPage from './pages/SuratMasukDetailPage';
 import VerifikasiMasukPage from './pages/VerifikasiSuratMasukPage';
 import DistribusiDetailPage from './pages/DistribusiDetailPage';
 import VerifikasiKeluarPage from './pages/VerifikasiKeluarPage';
+import DisposisiPimpinanPage from './pages/DisposisiPimpinanPage';
+import SuratEksternalForm from './pages/SuratEksternalForm';
+import ArsipSuratPage from './pages/ArsipSuratPage';
 
 
 const ProtectedRoute = () => {
@@ -46,6 +49,9 @@ function App() {
           <Route path="surat-masuk/:suratId" element={<SuratMasukDetailPage />} />
           <Route path="distribusi/:suratId" element={<DistribusiDetailPage />} />
           <Route path="verifikasi-keluar" element={<VerifikasiKeluarPage />} />
+          <Route path="disposisi" element={<DisposisiPimpinanPage />} />
+          <Route path="surat-eksternal/baru" element={<SuratEksternalForm />} />
+          <Route path="arsip" element={<ArsipSuratPage />} />
         </Route>
       </Route>
       <Route

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getSuratMasuk } from '../api/api'; // Kita pakai ulang API getSuratMasuk
+import { getSuratMasuk } from '../api/api';
 
 export default function VerifikasiMasukPage() {
   const [suratList, setSuratList] = useState([]);
@@ -12,7 +12,6 @@ export default function VerifikasiMasukPage() {
       try {
         setError('');
         setIsLoading(true);
-        // API ini akan mengambil surat yang statusnya 'TERKIRIM' ke unit Admin
         const response = await getSuratMasuk(); 
         setSuratList(response.data || []);
       } catch (err) {
@@ -36,13 +35,18 @@ export default function VerifikasiMasukPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Verifikasi Surat Masuk</h1>
-        {/* Nanti di sini bisa ada tombol untuk upload surat eksternal */}
+        <h1 className="text-3xl font-bold text-gray-800">Verifikasi & Distribusi Surat Masuk</h1>
+        <Link
+          to="/dashboard/surat-eksternal/baru"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 shadow-sm"
+        >
+          + Upload Surat Eksternal
+        </Link>
       </div>
 
       <div className="bg-white p-8 rounded-lg shadow-md">
         {suratList.length === 0 ? (
-          <p className="text-gray-500">Tidak ada surat baru yang perlu diverifikasi.</p>
+          <p className="text-gray-500">Tidak ada surat masuk baru yang perlu diverifikasi.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -65,9 +69,9 @@ export default function VerifikasiMasukPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {/* Link ini akan mengarah ke halaman detail & disposisi */}
-                      <Link to={`/dashboard/surat-masuk/${surat.id}`} className="text-indigo-600 hover:text-indigo-900">
-                        Proses & Disposisi
+                      {/* DIUBAH: Link sekarang mengarah ke halaman distribusi */}
+                      <Link to={`/dashboard/distribusi/${surat.id}`} className="text-indigo-600 hover:text-indigo-900">
+                        Proses & Distribusi
                       </Link>
                     </td>
                   </tr>

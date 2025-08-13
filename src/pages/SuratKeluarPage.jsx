@@ -2,6 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getSuratKeluar } from '../api/api';
 
+const StatusBadge = ({ status }) => {
+    const statusMap = {
+        MENUNGGU_VERIFIKASI_ADMIN: 'bg-gray-200 text-gray-800',
+        PROSES_PERSETUJUAN: 'bg-blue-200 text-blue-800',
+        DIKEMBALIKAN_PENGIRIM: 'bg-yellow-200 text-yellow-800',
+        DITOLAK: 'bg-red-200 text-red-800',
+        TERKIRIM: 'bg-green-200 text-green-800',
+        SELESAI: 'bg-green-200 text-green-800',
+    };
+
+    const colorClass = statusMap[status] || 'bg-gray-200 text-gray-800';
+    const statusText = status.replace(/_/g, ' ').toLowerCase();
+
+    return (
+        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${colorClass} capitalize`}>
+            {statusText}
+        </span>
+    );
+};
+
 export default function SuratKeluarPage() {
   const [suratList, setSuratList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);

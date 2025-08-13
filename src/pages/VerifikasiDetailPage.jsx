@@ -4,16 +4,16 @@ import { getSuratDetail } from '../api/api';
 import apiClient from '../api/api'; // Import apiClient untuk request PUT
 
 export default function VerifikasiDetailPage() {
-  const { suratId } = useParams();
+  const { suratId } = useParams(); // Ambil ID surat dari URL
   const navigate = useNavigate();
 
   const [surat, setSurat] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   
+  // State untuk form verifikasi
   const [status, setStatus] = useState('setuju');
   const [catatan, setCatatan] = useState('');
-  const [barcodeHash, setBarcodeHash] = useState(null);
 
 
 
@@ -33,18 +33,9 @@ export default function VerifikasiDetailPage() {
   }, [suratId]);
 
 
-  const handleAttachBarcode = () => {
-          // eslint-disable-next-line no-undef
-          const randomHash = `TTD-${user.id}-${Date.now()}`;
-          setBarcodeHash(randomHash);
-          alert(`Barcode TTD berhasil ditempelkan!\nHash: ${randomHash}`);
-      };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (status === 'setuju' && !barcodeHash) {
-            setError('Silakan tempelkan TTD Barcode terlebih dahulu sebelum menyetujui.');
-            return;
-        }
     if ((status === 'revisi' || status === 'tolak') && !catatan.trim()) {
         setError('Catatan wajib diisi jika status revisi atau tolak.');
         return;
@@ -52,7 +43,7 @@ export default function VerifikasiDetailPage() {
     setIsLoading(true);
     setError('');
     try {
-      const payload = { status, catatan, barcode_hash: barcodeHash };
+      const payload = { status, catatan, };
       
       await apiClient.put(`/verifikasi/${suratId}`, payload);
 
@@ -92,15 +83,6 @@ export default function VerifikasiDetailPage() {
               <label className="flex items-center"><input type="radio" name="status" value="revisi" checked={status === 'revisi'} onChange={(e) => setStatus(e.target.value)} className="mr-1" /> Revisi</label>
               <label className="flex items-center"><input type="radio" name="status" value="tolak" checked={status === 'tolak'} onChange={(e) => setStatus(e.target.value)} className="mr-1" /> Tolak</label>
             </div>
-            {status === 'setuju' && (
-                <div className="p-4 bg-gray-50 rounded-lg">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Tanda Tangan Digital</label>
-                    <button type="button" onClick={handleAttachBarcode} className={`w-full py-2 px-4 rounded-md font-semibold ${barcodeHash ? 'bg-green-600 text-white' : 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500'}`}>
-                        {barcodeHash ? '✓ TTD Telah Terpasang' : 'Tempelkan Barcode TTD'}
-                    </button>
-                    {barcodeHash && <p className="text-xs text-gray-500 mt-2 text-center">Hash: {barcodeHash}</p>}
-                </div>
-            )}
           </div>
 
         <div>
